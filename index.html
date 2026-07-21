@@ -332,6 +332,10 @@
       <div style="font-size:13px; color:var(--muted)">
         <div id="storageInfo"></div>
       </div>
+      <hr class="divider">
+      <button class="btn btn-danger-ghost btn-sm" id="resetBtn">Alle Kategorien zurücksetzen</button>
+      <div class="hint" style="margin-top:8px">Löscht die im Browser gespeicherten Kategorien und lädt die Beispiele neu. Exportiere vorher, falls du etwas behalten willst.</div>
+      <div class="hint" id="buildInfo" style="margin-top:14px; opacity:0.7"></div>
     </div>
   </section>
 </div>
@@ -2675,6 +2679,7 @@ var qrcode = function() {
 /* ===================== Datenmodell & Speicher ===================== */
 const STORE_KEY = "bestelltool_categories_v1";
 const FORMAT_VERSION = 1;   // Version, die in jeden QR-Code geschrieben wird
+const APP_BUILD = "Generator · Build 3 · Menge = Text/Zahl, fix/variabel beim Erstellen";
 
 const SWATCHES = ["#1f6f5c","#c9622d","#2d6fc9","#8b3fb0","#b0413f","#3f8b52","#c99a2d","#4a5568"];
 
@@ -3058,7 +3063,21 @@ function renderStorageInfo() {
   document.getElementById("storageInfo").innerHTML =
     `Aktuell gespeichert: <strong>${n}</strong> Kategorie(n) mit insgesamt ${fields} Feld(ern).<br>
      Gespeichert nur in diesem Browser auf diesem Gerät.`;
+  const bi = document.getElementById("buildInfo");
+  if (bi) bi.textContent = APP_BUILD;
 }
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Alle gespeicherten Kategorien löschen und die Beispiele neu laden?")) return;
+  localStorage.removeItem(STORE_KEY);
+  categories = seedCategories();
+  selectedCatId = null;
+  saveCategories();
+  renderCatList();
+  renderCatChooser();
+  renderStorageInfo();
+  toast("Zurückgesetzt");
+});
 
 /* ===================== Helfer ===================== */
 function esc(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
